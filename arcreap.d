@@ -1,7 +1,8 @@
 #!/usr/sbin/dtrace -s
 
 fbt::arc_kmem_reap_now:entry,
-fbt::arc_adjust:entry
+fbt::arc_adjust:entry,
+fbt::arc_evict:entry
 {
     self->start[probefunc] = timestamp;
 }
@@ -12,7 +13,8 @@ fbt::arc_shrink:entry
 }
 
 fbt::arc_kmem_reap_now:return,
-fbt::arc_adjust:return
+fbt::arc_adjust:return,
+fbt::arc_evict:return
 /self->start[probefunc]/
 {
     printf("%Y %d ms", walltimestamp,

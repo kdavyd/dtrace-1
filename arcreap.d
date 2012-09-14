@@ -1,8 +1,18 @@
 #!/usr/sbin/dtrace -s
 
-fbt::arc_kmem_reap_now:entry,
-fbt::arc_adjust:entry,
+fbt::arc_kmem_reap_now:entry
+{
+    self->start[probefunc] = timestamp;
+}
+
+fbt::arc_adjust:entry
+{
+    self->start[probefunc] = timestamp;
+    self->inadjust = 1;
+}
+
 fbt::arc_evict:entry
+/self->inadjust/
 {
     self->start[probefunc] = timestamp;
 }

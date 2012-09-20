@@ -3,6 +3,7 @@
 fbt::arc_kmem_reap_now:entry
 {
     self->start[probefunc] = timestamp;
+    self->strategy = args[0];
 }
 
 fbt::arc_adjust:entry
@@ -16,12 +17,20 @@ fbt::arc_shrink:entry
     trace("called");
 }
 
-fbt::arc_kmem_reap_now:return,
 fbt::arc_adjust:return,
 fbt::arc_shrink:return
 /self->start[probefunc]/
 {
-    printf("%Y %d ms", walltimestamp,
+printf("%Y %d ms", walltimestamp,
         (timestamp - self->start[probefunc]) / 1000000);
     self->start[probefunc] = 0;
 }
+
+fbt::arc_kmem_reap_now:return
+/self->start[probefunc]/
+{
+printf("%Y %d ms, strategy %d", walltimestamp,
+        (timestamp - self->start[probefunc]) / 1000000, self->strategy);
+    self->start[probefunc] = 0;
+}
+
